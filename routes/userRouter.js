@@ -17,30 +17,55 @@ router.get("/", async(req,res) => {
 
 //GET USER BY ID
 
-router.get("/:id", async(req,res) => {
+router.get("/:id", (req,res) => {
+ 
   const {id} = req.params;
+
   Users.findById(id)
-    .then(user => {
-      res.status(200).json({user,message: "user info succesfully retrieved"})
-    }).catch( error => {
-      res.status(500).json({ error: `Could not load user info, ${error}`})
-    })
+    if(!id) {
+      res.status(404).json({ message: `yo dawg this id dont exist`})
+    } else {
+      Users.findById(id)
+      .then(user => {
+        res.status(200).json({ user: user, message: `user info retrieved`})
+      }).catch( error => {
+        res.status(500).json({ message: `error 500 undo, ${error}`})
+      })
+    }
 })
 
 
 // POST
 
-router.post("/", (req,res) => {
-  // const {id} = req.params
+// router.post("/", (req,res) => {
   
-  const userInfo = req.body;
-  Users.insert(userInfo)
-    .then(user => {
-      res.status(201).json(user)
-    })
-    .catch(error => {
-      res.status(500).json({ message: 'error adding user'})
-    })
+//   const userInfo = req.body;
+//   Users.insert(userInfo)
+//     .then(user => {
+//       res.status(201).json(user)
+//     })
+//     .catch(error => {
+//       res.status(500).json({ message: `error adding user, ${error}`})
+//     })
+// })
+
+router.post("/", (req,res) => {
+  
+  const {name, bio} = req.body
+
+  if (!name || !bio) {
+    res.status(404).json({ message: "Enter the required information" })
+  } else {
+    Users.insert(req.body)
+      .then(newUser => {
+        res.status(200).json({
+          message: `new user: ${newUser}`,
+          newUser:req.body
+      }).catch(error => {
+        res.status(500).json({ message: "error 500 hundo"})
+      })
+      })
+  }
 })
 
 
