@@ -21,9 +21,9 @@ router.get("/:id", async(req,res) => {
   const {id} = req.params;
   Users.findById(id)
     .then(user => {
-      res.status(200).json({message: "user info succesfully retrieved"})
+      res.status(200).json({user,message: "user info succesfully retrieved"})
     }).catch( error => {
-      res.status(500).json({ error: "Could not load user info"})
+      res.status(500).json({ error: `Could not load user info, ${error}`})
     })
 })
 
@@ -50,27 +50,27 @@ router.delete("/:id", (req,res) => {
 
   Users.remove(id)
     .then(user => {
-      res.status(200).json({ message: 'user deleted' })
+      res.status(200).json({ message: `user: ${user} has been deleted` })
     }).catch(error => {
-      res.status(500).json({ error: 'Could not delete user by this id'})
+      res.status(500).json({ error: `Could not delete user by this id, ${error}`})
     })
 })
 // UPDATE
 
-router.put("/:id", (req,res) => {
-  const {id} = req.params;
-  const user = req.body;
-
-  Users.update(id, user)
-    .then(updated => {
-      if (updated) {
-        res.status(200).json(update)
-      } else {
-        res.status(404).json({ message: 'user not found'})
-      } 
+router.put("/:id", async (req,res) => {
+  try {
+    const updateUserInfo = await Users.update(req.params.id, req.body)
+    if(updateUserInfo)
+      res.status(200).json({
+        message: `user info: ${updateUserInfo}`,
+        updateUserInfo: req.body,
+      })
+  } catch (error) {
+    res.status(500).json({
+      message: 'Unable to update this user at this time.'
     })
-    .catch(error => {
-      res.status(500).json({ message: 'error updating the user'})
-    })
+  }
 })
+
+
 module.exports = router;
