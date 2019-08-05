@@ -22,16 +22,22 @@ router.get("/:id", (req,res) => {
   const {id} = req.params;
 
   Users.findById(id)
-    if(!id) {
-      res.status(404).json({ message: `yo dawg this id dont exist`})
-    } else {
-      Users.findById(id)
-      .then(user => {
-        res.status(200).json({ user: user, message: `user info retrieved`})
-      }).catch( error => {
-        res.status(500).json({ message: `error 500 undo, ${error}`})
+    .then( user => {
+      if(user) {
+        res.status(200).json({
+          user: user,
+          message: "user by id retrieved"
+        })
+      } else {
+        res.status(404).json({ 
+          message: "unable to retrieve this specefic user"
+        })
+      }
+    }).catch( error => {
+      res.status(500).json({
+        message: `error reason: ${error}`
       })
-    }
+    })
 })
 
 
@@ -62,7 +68,7 @@ router.post("/", (req,res) => {
           message: `new user: ${newUser}`,
           newUser:req.body
       }).catch(error => {
-        res.status(500).json({ message: "error 500 hundo"})
+        res.status(500).json({ message: `error 500 hundo, ${error}`})
       })
       })
   }
@@ -70,16 +76,32 @@ router.post("/", (req,res) => {
 
 
 // DELETE
-router.delete("/:id", (req,res) => {
-  const id = req.params.id;
+// router.delete("/:id", (req,res) => {
+//   const id = req.params.id;
 
-  Users.remove(id)
-    .then(user => {
-      res.status(200).json({ message: `user: ${user} has been deleted` })
-    }).catch(error => {
-      res.status(500).json({ error: `Could not delete user by this id, ${error}`})
-    })
-})
+//   Users.remove(id)
+//     .then(user => {
+//       res.status(200).json({ message: `user: ${user} has been deleted` })
+//     }).catch(error => {
+//       res.status(500).json({ error: `Could not delete user by this id, ${error}`})
+//     })
+// })
+  router.delete("/:id", (req,res) => {
+    const { id } = req.params
+
+    Users.remove(id)
+      .then( user => {
+        if (user) {
+          res.status(200).json({ user:user, message: `user: ${user} has been deleted` })
+        } else {
+          res.status(404).json({
+            message: "cant delete this user at this time"
+          })
+        }
+      }).catch( error => {
+          res.status(500).json({ error: error})
+      })
+  })
 // UPDATE
 
 router.put("/:id", async (req,res) => {
