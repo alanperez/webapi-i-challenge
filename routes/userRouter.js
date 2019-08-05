@@ -18,12 +18,31 @@ router.get("/", async(req,res) => {
 //GET USER BY ID
 
 router.get("/:id", async(req,res) => {
-  const id = req.params.id;
-  
+  const {id} = req.params;
+  Users.findById(id)
+    .then(user => {
+      res.status(200).json({message: "user info succesfully retrieved"})
+    }).catch( error => {
+      res.status(500).json({ error: "Could not load user info"})
+    })
 })
 
 
 // POST
+
+router.post("/", (req,res) => {
+  // const {id} = req.params
+  
+  const userInfo = req.body;
+  Users.insert(userInfo)
+    .then(user => {
+      res.status(201).json(user)
+    })
+    .catch(error => {
+      res.status(500).json({ message: 'error adding user'})
+    })
+})
+
 
 // DELETE
 router.delete("/:id", (req,res) => {
@@ -38,4 +57,20 @@ router.delete("/:id", (req,res) => {
 })
 // UPDATE
 
+router.put("/:id", (req,res) => {
+  const {id} = req.params;
+  const user = req.body;
+
+  Users.update(id, user)
+    .then(updated => {
+      if (updated) {
+        res.status(200).json(update)
+      } else {
+        res.status(404).json({ message: 'user not found'})
+      } 
+    })
+    .catch(error => {
+      res.status(500).json({ message: 'error updating the user'})
+    })
+})
 module.exports = router;
