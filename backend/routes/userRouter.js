@@ -105,20 +105,42 @@ router.post("/", (req,res) => {
   })
 // UPDATE
 
-router.put("/:id", async (req,res) => {
-  try {
-    const updateUserInfo = await Users.update(req.params.id, req.body)
-    if(updateUserInfo)
-      res.status(200).json({
-        message: `user info: ${updateUserInfo}`,
-        updateUserInfo: req.body,
-      })
-  } catch (error) {
-    res.status(500).json({
-      message: 'Unable to update this user at this time.'
+// router.put("/:id", async (req,res) => {
+//   try {
+//     const updateUserInfo = await Users.update(req.params.id, req.body)
+//     if(updateUserInfo)
+//       res.status(200).json({
+//         message: `user info: ${updateUserInfo}`,
+//         updateUserInfo: req.body,
+//       })
+//   } catch (error) {
+//     res.status(500).json({
+//       message: 'Unable to update this user at this time.'
+//     })
+//   }
+// })
+router.put("/:id", (req, res) => {
+  const {id} = req.params
+  const {name,bio} = req.body
+  if (!name || !bio ) {
+    res.status(400).json({
+      message: "Please provide name and bio for"
     })
+  } else {
+    Users.update(id,req.body)
+      .then(user => {
+        if(!user) {
+          res.status(404).json({
+            message: `error: ${!user} USER ID NOT SPEC`
+          })
+        } else {
+          res.status(200).json({
+            message: `USER SUCCESSFULLY ADDED!`
+          })
+        }
+      }).catch(error => {
+        res.status(500).json({message: `Error: ${error}`})
+      })
   }
 })
-
-
 module.exports = router;
